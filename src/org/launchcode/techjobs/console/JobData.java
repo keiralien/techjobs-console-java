@@ -7,9 +7,11 @@ import org.apache.commons.csv.CSVRecord;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.Reader;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by LaunchCode
@@ -34,8 +36,9 @@ public class JobData {
         loadData();
 
         ArrayList<String> values = new ArrayList<>();
+        ArrayList<HashMap<String, String>> allJobsCopy = new ArrayList<>(allJobs);
 
-        for (HashMap<String, String> row : allJobs) {
+        for (HashMap<String, String> row : allJobsCopy) {
             String aValue = row.get(field);
 
             if (!values.contains(aValue)) {
@@ -51,7 +54,9 @@ public class JobData {
         // load data, if not already loaded
         loadData();
 
-        return allJobs;
+        ArrayList<HashMap<String, String>> allJobsCopy = new ArrayList<>(allJobs);
+
+        return allJobsCopy;
     }
 
     /**
@@ -74,7 +79,7 @@ public class JobData {
 
         for (HashMap<String, String> row : allJobs) {
 
-            String aValue = row.get(column);
+            String aValue = row.get(column).toLowerCase();
 
             if (aValue.contains(value)) {
                 jobs.add(row);
@@ -84,7 +89,27 @@ public class JobData {
         return jobs;
     }
 
+    public static ArrayList<HashMap<String, String>> findByValue(String value) {
+
+        // load data if not already loaded
+        loadData();
+
+        ArrayList<HashMap<String, String>> jobs = new ArrayList<>();
+
+        for (HashMap<String, String> jobInfo : allJobs) {
+            for (HashMap.Entry<String, String> job : jobInfo.entrySet()) {
+                if(job.getValue().toLowerCase().contains(value)) {
+                    if(!jobs.contains(jobInfo)) {
+                        jobs.add(jobInfo);
+                    }
+                }
+            }
+        }
+
+        return jobs;
+    }
     /**
+     *
      * Read in data from a CSV file and store it in a list
      */
     private static void loadData() {
@@ -124,5 +149,4 @@ public class JobData {
             e.printStackTrace();
         }
     }
-
 }
